@@ -2,7 +2,7 @@ name: IRCTC Automation Booking
 
 on:
   push:
-    branches: [ 'main' ]
+    branches: ['main']
   pull_request:
   workflow_dispatch:
     inputs:
@@ -39,12 +39,10 @@ jobs:
     - name: Pre-load captcha models
       run: |
         cd irctc-captcha-solver
-        python3 -c "
-from app_server import load_easyocr_model
-print('Loading EasyOCR models...')
-model = load_easyocr_model()
-print('Models loaded successfully!')
-"
+        python3 -c "from app_server import load_easyocr_model
+        print('Loading EasyOCR models...')
+        model = load_easyocr_model()
+        print('Models loaded successfully!')"
 
     - name: Start Captcha Server
       run: |
@@ -58,9 +56,9 @@ print('Models loaded successfully!')
         PASSWORD=$(jq -r '.inputs.PASSWORD' $GITHUB_EVENT_PATH)
         USERNAME=$(jq -r '.inputs.USERNAME' $GITHUB_EVENT_PATH)
         UPI_ID=$(jq -r '.inputs.UPI_ID' $GITHUB_EVENT_PATH)
-        echo ::add-mask::$PASSWORD
-        echo ::add-mask::$USERNAME
-        echo ::add-mask::$UPI_ID
+        echo "::add-mask::$PASSWORD"
+        echo "::add-mask::$USERNAME"
+        echo "::add-mask::$UPI_ID"
         echo "PASSWORD=$PASSWORD" >> $GITHUB_ENV
         echo "USERNAME=$USERNAME" >> $GITHUB_ENV
         echo "UPI_ID=$UPI_ID" >> $GITHUB_ENV
