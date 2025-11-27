@@ -1,4 +1,4 @@
-name: IRCTC Automation
+name: IRCTC Automation Booking
 
 on:
   workflow_dispatch:
@@ -6,48 +6,53 @@ on:
       USERNAME:
         required: true
         type: string
+        description: "Your IRCTC Username"
       PASSWORD:
         required: true
         type: string
+        description: "Your IRCTC Password"
       UPI_ID:
         required: true
         type: string
+        description: "Your UPI ID"
 
 jobs:
-  book-ticket:
+  IRCTC-Booking:
     runs-on: ubuntu-latest
     
     steps:
     - uses: actions/checkout@v4
     
-    - name: Setup Environment
-      run: sudo timedatectl set-timezone Asia/Kolkata
-        
-    - name: Setup Python
+    - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: '3.11'
-        
-    - name: Setup Node.js
+
+    - name: Set up Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '18'
-        
-    - name: Install Dependencies
+
+    - name: Install dependencies
       run: |
+        sudo timedatectl set-timezone Asia/Kolkata
         pip install -r irctc-captcha-solver/requirements.txt
         npm install
-        
-    - name: Run IRCTC Automation
+
+    - name: Start Captcha Server and Run Automation
       run: |
-        # Start captcha server
+        # Start captcha server in background
         cd irctc-captcha-solver
         python3 app-server.py --host 0.0.0.0 --port 5001 &
         
-        # Wait for server
+        # Wait for server to start (models will load automatically)
+        echo "Waiting for captcha server to start and load models..."
         sleep 30
         
-        # Run Cypress
+        # Test if server is running
+        curl -X POST "http://localhost:5001/extract-text" -H "Content-Type: application/json" -d '{"image": ""}' || echo "Server test failed but continuing..."
+        
+        # Run Cypress automation
         cd ..
         npx cypress run --browser chrome --headed
       env:
